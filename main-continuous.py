@@ -39,6 +39,68 @@ class Person:
         self.repostrate=p*negativeExpo(time)*explosiveness
 
 
+class radioMOD:
+    def __init__(self,dg,rate):
+        self.rate = rate
+        self.dg = dg
+        self.timeLine = 0
+        self.record = []
+        self.timerec = []
+        edgebox = []
+        for i in range(total/50):
+            lcstr = 'local-'+str(i)
+            self.dg.add_node(lcstr)
+            for j in range(total/20):
+                index = j+i*50
+                edgebox.append((lcstr,index,gammaFunc(newspaperDelay,40)))
+        self.dg.add_weighted_edges_from(edgebox)
+        self.notchosen = []
+        for i in range(50):
+            self.notchosen.append(i)
+        count = int(total/20*self.rate*explosiveness)
+        while count>0:
+            randa = random.randint(0,total/20-1)
+            while not(randa in self.notchosen):
+                randa = random.randint(0,total/20-1)
+            self.notchosen.remove(randa)
+            count -= 1
+        for i in range(20):
+            lcstr = 'local-'+str(i)
+            for j in range(50):
+                index = i*50 + j
+                if j in self.notchosen:
+                    self.dg.node[index]=Person(False,None)
+                else:
+                    self.dg.node[index]=Person(False,self.dg.edge[lcstr][index]['weight'],True)
+
+
+    def update(self):
+        self.timeLine += timeInterval
+        for i in range(total):
+            if self.dg.node[i].info:
+                continue
+            if self.dg.node[i].access:
+                self.dg.node[i].count -= timeInterval
+                if self.dg.node[i].count<=0:
+                    self.dg.node[i].info=True
+                    self.record.append(i)
+                    self.timerec.append(self.timeLine)
+
+    def updateWithTime(self,time):
+        count = int(time/timeInterval)
+        for i in range(count):
+            self.update()
+
+    def getResult(self):
+        result = {}
+        self.updateWithTime(totalTime)
+        for i in range(len(self.record)):
+            result[self.record[i]] = self.timerec[i]
+        for i in range(1000):
+            if not (i in result):
+                result[i] = -1
+        return result
+
 
 class newspaperMOD:
     def __init__(self,dg,rate):
@@ -183,3 +245,16 @@ myCrowd = Crowd(0,0,0,0)
 dg = myCrowd.dg
 myInter = internetMOD(dg,0.5,20)
 print myInter.dg.edge
+
+
+def produceMediaDictionary(population,rradio,rtv,rinternet,rnewspaper):
+    nradio = int(population*(1- rradio))
+    ntv = int(population*(1-rtv))
+    ninternet = int(population*(1-rinternet))
+    nnewspaper = int(population*(1-rnewspaper))
+    aradio = range(0,population)
+    atv = range(0,population)
+    ainterest = range(0,population)
+    atv = range(0,population)
+    for i in range(0,nradio):
+
